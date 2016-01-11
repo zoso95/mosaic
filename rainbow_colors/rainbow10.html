@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+path {
+  stroke: #fff;
+}
+
+circle {
+  fill: #000;
+  opacity: 0.0;
+  pointer-events: none;
+}
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+var width = 552,
+    height =  350;
+
+var vertices = [
+ {"r":12.7272727273,"g":4.84606060606,"b":6.80121212121, "width":352.922424242,"height":179.367272727},
+  {"r":36.6947791165,"g":81.7670682731,"b":28.4136546185, "width":320.036144578,"height":165.506024096},
+  {"r":157.527607362,"g":230.352760736,"b":103.763803681, "width":379.515337423,"height":161.911042945},
+  {"r":184.843267108,"g":28.7682119205,"b":38.2251655629, "width":177.591611479,"height":131.061810155},
+  {"r":45.3419354839,"g":171.329032258,"b":82.9935483871, "width":301.270967742,"height":169.529032258},
+  {"r":237.195488722,"g":57.8609022556,"b":119.894736842, "width":99.8421052632,"height":156.187969925},
+  {"r":64.4402985075,"g":200.600746269,"b":211.742537313, "width":217.007462687,"height":223.53358209},
+  {"r":19.6383561644,"g":73.3863013699,"b":136.167123288, "width":140.457534247,"height":217.136986301},
+  {"r":248.752688172,"g":206.539784946,"b":21.8365591398, "width":447.049462366,"height":147.021505376},
+  {"r":193.461358314,"g":248.644028103,"b":244.606557377, "width":241.454332553,"height":197.245901639},
+ ]
+function onlyUnique(value, index, self) { 
+    return self.indexOf(value) === index;
+}
+
+var voronoi = d3.geom.voronoi()
+    .clipExtent([[0, 0], [width, height]]);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+var path = svg.append("g").selectAll("path");
+
+draw();
+function format(centers) {
+  var some_data = []
+  for (index in centers){
+    some_data.push([centers[index].width,centers[index].height])
+  }
+  return some_data
+}
+
+function getRGB(i) {
+  c = vertices[i]
+  return d3.rgb(c.r,c.g,c.b)
+}
+
+function draw() {
+  path = path
+      .data(voronoi(format(vertices)), polygon);
+
+  path.exit().remove();
+
+  path.enter().append("path")
+      .style("fill", function(d, i) { return getRGB(i); })
+      .attr("d", polygon);
+
+  path.order();
+}
+
+svg.selectAll("circle")
+    .data(vertices)
+  .enter().append("circle")
+    .attr("transform", function(d) { return "translate(" + d.width+","+d.height + ")"; })
+    .attr("r", 1.5);
+
+function polygon(d) {
+  return "M" + d.join("L") + "Z";
+}
+
+</script>

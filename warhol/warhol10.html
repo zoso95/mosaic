@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+path {
+  stroke: #fff;
+}
+
+circle {
+  fill: #000;
+  opacity: 0.0;
+  pointer-events: none;
+}
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+var width = 400,
+    height =  400;
+
+var vertices = [
+ {"r":157.4609375,"g":109.9921875,"b":87.4453125, "width":328.859375,"height":356.8984375},
+  {"r":150.055944056,"g":115.167832168,"b":109.524475524, "width":311.153846154,"height":152.685314685},
+  {"r":193.62,"g":152.026666667,"b":98.7333333333, "width":328.093333333,"height":55.5266666667},
+  {"r":164.005494505,"g":106.620879121,"b":80.6318681319, "width":152.043956044,"height":182.373626374},
+  {"r":149.852791878,"g":161.390862944,"b":150.746192893, "width":56.0,"height":299.284263959},
+  {"r":227.47,"g":101.695,"b":72.715, "width":49.795,"height":95.82},
+  {"r":229.690721649,"g":152.12371134,"b":41.6288659794, "width":355.711340206,"height":250.618556701},
+  {"r":158.161971831,"g":130.211267606,"b":86.9366197183, "width":176.718309859,"height":353.795774648},
+  {"r":198.939393939,"g":153.25,"b":80.1363636364, "width":240.78030303,"height":261.25},
+  {"r":196.371069182,"g":101.446540881,"b":38.8553459119, "width":187.113207547,"height":52.106918239},
+ ]
+function onlyUnique(value, index, self) { 
+    return self.indexOf(value) === index;
+}
+
+var voronoi = d3.geom.voronoi()
+    .clipExtent([[0, 0], [width, height]]);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+var path = svg.append("g").selectAll("path");
+
+draw();
+function format(centers) {
+  var some_data = []
+  for (index in centers){
+    some_data.push([centers[index].width,centers[index].height])
+  }
+  return some_data
+}
+
+function getRGB(i) {
+  c = vertices[i]
+  return d3.rgb(c.r,c.g,c.b)
+}
+
+function draw() {
+  path = path
+      .data(voronoi(format(vertices)), polygon);
+
+  path.exit().remove();
+
+  path.enter().append("path")
+      .style("fill", function(d, i) { return getRGB(i); })
+      .attr("d", polygon);
+
+  path.order();
+}
+
+svg.selectAll("circle")
+    .data(vertices)
+  .enter().append("circle")
+    .attr("transform", function(d) { return "translate(" + d.width+","+d.height + ")"; })
+    .attr("r", 1.5);
+
+function polygon(d) {
+  return "M" + d.join("L") + "Z";
+}
+
+</script>

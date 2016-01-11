@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+path {
+  stroke: #fff;
+}
+
+circle {
+  fill: #000;
+  opacity: 0.0;
+  pointer-events: none;
+}
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+var width = REPLACE_WIDTH,
+    height =  REPLACE_HEIGHT;
+
+var vertices = REPLACE_ME
+function onlyUnique(value, index, self) { 
+    return self.indexOf(value) === index;
+}
+
+var voronoi = d3.geom.voronoi()
+    .clipExtent([[0, 0], [width, height]]);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+var path = svg.append("g").selectAll("path");
+
+draw();
+function format(centers) {
+  var some_data = []
+  for (index in centers){
+    some_data.push([centers[index].width,centers[index].height])
+  }
+  return some_data
+}
+
+function getRGB(i) {
+  c = vertices[i]
+  return d3.rgb(c.r,c.g,c.b)
+}
+
+function draw() {
+  path = path
+      .data(voronoi(format(vertices)), polygon);
+
+  path.exit().remove();
+
+  path.enter().append("path")
+      .style("fill", function(d, i) { return getRGB(i); })
+      .attr("d", polygon);
+
+  path.order();
+}
+
+svg.selectAll("circle")
+    .data(vertices)
+  .enter().append("circle")
+    .attr("transform", function(d) { return "translate(" + d.width+","+d.height + ")"; })
+    .attr("r", 1.5);
+
+function polygon(d) {
+  return "M" + d.join("L") + "Z";
+}
+
+</script>
